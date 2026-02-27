@@ -70,7 +70,59 @@ npx cc-audit-log --last 5
 
 # All sessions (can be slow for heavy users)
 npx cc-audit-log --all
+
+# Structured JSON output (for CI/scripts/programmatic use)
+npx cc-audit-log --json
+
+# Combine with other flags
+npx cc-audit-log --today --json
+npx cc-audit-log --last 5 --json
 ```
+
+### JSON output
+
+Pass `--json` (or `-j`) to get structured JSON on stdout instead of the formatted terminal display. All other flags (`--today`, `--date`, `--last`, `--all`) combine with `--json`.
+
+```json
+{
+  "version": "1.0",
+  "sessionsScanned": 1,
+  "sessions": [
+    {
+      "project": "my-app",
+      "start": "2026-02-27T11:47:00.000Z",
+      "end": "2026-02-27T15:44:00.000Z",
+      "duration": 237,
+      "transcriptSize": 7450000,
+      "summary": {
+        "toolCalls": 201,
+        "filesCreated": 4,
+        "filesModified": 6,
+        "filesRead": 18,
+        "bashCommands": 44,
+        "gitCommits": 1
+      },
+      "keyActions": [
+        { "time": "2026-02-27T11:48:00.000Z", "type": "task", "detail": "Spawned agent: ..." },
+        { "time": "2026-02-27T11:51:00.000Z", "type": "create", "detail": "Created ~/src/app.py" }
+      ],
+      "riskFlags": []
+    }
+  ]
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `version` | Schema version (`"1.0"`) |
+| `sessionsScanned` | Number of sessions in this output |
+| `sessions[].project` | Project directory name |
+| `sessions[].start` / `end` | ISO 8601 timestamps |
+| `sessions[].duration` | Duration in minutes |
+| `sessions[].transcriptSize` | Raw transcript file size in bytes |
+| `sessions[].summary` | Counts of tool calls, file ops, bash commands, git commits |
+| `sessions[].keyActions` | Timeline of notable actions (deduplicated) |
+| `sessions[].riskFlags` | Array of risk label strings (empty if clean) |
 
 ## Risk detection
 

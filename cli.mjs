@@ -56,6 +56,11 @@ function formatDuration(ms) {
   return `${m}m`;
 }
 
+function durationMinutes(startTs, endTs) {
+  if (!startTs || !endTs) return 0;
+  return Math.round((new Date(endTs) - new Date(startTs)) / 60000);
+}
+
 function cleanProjectName(dirName) {
   if (dirName.startsWith('-tmp')) return '/tmp';
   const parts = dirName.split('-').filter(Boolean);
@@ -302,7 +307,42 @@ async function auditSession(session) {
   };
 }
 
-// --- Output ---
+// --- Structured data builder (for --json) ---
+
+function buildSessionData(session, audit) {
+  // Deduplicate similar consecutive actions (same logic as display)
+  const deduped = [];
+  let lastDetail = '';
+  for (const a of audit.actions) {
+    if (a.detail === lastDetail) continue;
+    lastDetail = a.detail;
+    deduped.push(a);
+  }
+
+  return {
+    project: session.projectName,
+    start: session.startTs ? new Date(session.startTs).toISOString() : null,
+    end: session.endTs ? new Date(session.endTs).toISOString() : null,
+    duration: durationMinutes(session.startTs, session.endTs),
+    transcriptSize: session.size,
+    summary: {
+      toolCalls: audit.toolCallCount,
+      filesCreated: audit.filesCreated.length,
+      filesModified: audit.filesModified.length,
+      filesRead: audit.filesRead.length,
+      bashCommands: audit.bashCommands.length,
+      gitCommits: audit.gitCommits.length,
+    },
+    keyActions: deduped.map(a => ({
+      time: a.ts ? new Date(a.ts).toISOString() : null,
+      type: a.type,
+      detail: a.detail,
+    })),
+    riskFlags: audit.riskFlags.map(rf => rf.label),
+  };
+}
+
+// --- Terminal output ---
 
 function printHeader() {
   console.log(`  ${C.bold}${C.cyan}Claude Code Audit Log v1.0${C.reset}`);
@@ -398,6 +438,7 @@ async function main() {
   let targetDate = null;
   let showAll = false;
   let lastN = 1;
+  let jsonOutput = false;
 
   // Parse args
   for (let i = 0; i < args.length; i++) {
@@ -410,6 +451,8 @@ async function main() {
       showAll = true;
     } else if (args[i] === '--last' || args[i] === '-n') {
       lastN = parseInt(args[++i]) || 1;
+    } else if (args[i] === '--json' || args[i] === '-j') {
+      jsonOutput = true;
     } else if (args[i] === '--help' || args[i] === '-h') {
       console.log(`
   cc-audit-log — See what your Claude Code actually did.
@@ -420,7 +463,12 @@ async function main() {
     cc-audit-log --date DATE  Show sessions from a specific date (YYYY-MM-DD)
     cc-audit-log --last N     Show the N most recent sessions
     cc-audit-log --all        Show all sessions (can be slow)
+    cc-audit-log --json       Output structured JSON instead of terminal display
     cc-audit-log --help       Show this help
+
+  Flags can be combined:
+    cc-audit-log --today --json
+    cc-audit-log --last 5 --json
 
   Reads session transcripts from ~/.claude/projects/ and generates
   a human-readable audit trail of AI actions.
@@ -431,13 +479,23 @@ async function main() {
     }
   }
 
-  printHeader();
-  console.log(`  ${C.dim}Scanning: ~/.claude/projects/${C.reset}`);
+  if (!jsonOutput) {
+    printHeader();
+    console.log(`  ${C.dim}Scanning: ~/.claude/projects/${C.reset}`);
+  }
 
   const sessions = await findSessions(targetDate);
 
   if (sessions.length === 0) {
-    console.log(`\n  No sessions found${targetDate ? ` for ${targetDate}` : ''}.`);
+    if (jsonOutput) {
+      console.log(JSON.stringify({
+        version: '1.0',
+        sessionsScanned: 0,
+        sessions: [],
+      }, null, 2));
+    } else {
+      console.log(`\n  No sessions found${targetDate ? ` for ${targetDate}` : ''}.`);
+    }
     process.exit(0);
   }
 
@@ -451,15 +509,27 @@ async function main() {
     toAudit = mainSessions.slice(-lastN);
   }
 
-  console.log(`  ${C.dim}Found ${sessions.length} sessions${targetDate ? ` on ${targetDate}` : ''}. Auditing ${toAudit.length}.${C.reset}`);
+  if (!jsonOutput) {
+    console.log(`  ${C.dim}Found ${sessions.length} sessions${targetDate ? ` on ${targetDate}` : ''}. Auditing ${toAudit.length}.${C.reset}`);
+  }
 
   // Aggregate stats across all audited sessions
   let totalTools = 0, totalCreated = 0, totalModified = 0, totalBash = 0, totalCommits = 0, totalRisks = 0;
 
+  // Collect structured data for JSON output
+  const jsonSessions = [];
+
   for (const session of toAudit) {
-    process.stderr.write(`  Auditing ${session.projectName}...      \r`);
+    if (!jsonOutput) {
+      process.stderr.write(`  Auditing ${session.projectName}...      \r`);
+    }
     const audit = await auditSession(session);
-    printSessionSummary(session, audit);
+
+    if (jsonOutput) {
+      jsonSessions.push(buildSessionData(session, audit));
+    } else {
+      printSessionSummary(session, audit);
+    }
 
     totalTools += audit.toolCallCount;
     totalCreated += audit.filesCreated.length;
@@ -467,6 +537,16 @@ async function main() {
     totalBash += audit.bashCommands.length;
     totalCommits += audit.gitCommits.length;
     totalRisks += audit.riskFlags.length;
+  }
+
+  if (jsonOutput) {
+    const output = {
+      version: '1.0',
+      sessionsScanned: toAudit.length,
+      sessions: jsonSessions,
+    };
+    console.log(JSON.stringify(output, null, 2));
+    return;
   }
 
   // Totals if multiple sessions
