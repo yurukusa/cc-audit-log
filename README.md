@@ -157,6 +157,7 @@ The tool flags potentially risky commands:
 | **cc-audit-log** | What did your AI **do**? |
 | [cc-cost-check](https://github.com/yurukusa/cc-cost-check) | Cost per commit calculator |
 | [cc-wrapped](https://yurukusa.github.io/cc-wrapped/) | Your AI year in review (Spotify Wrapped style) |
+| [cc-roast](https://yurukusa.github.io/cc-roast/) | Your CLAUDE.md, brutally honest |
 
 ## License
 
