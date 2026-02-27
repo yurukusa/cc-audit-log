@@ -46,7 +46,7 @@ function formatTime(ts) {
 function formatDate(ts) {
   if (!ts) return '????-??-??';
   const d = new Date(ts);
-  return d.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function formatDuration(ms) {
@@ -404,7 +404,8 @@ async function main() {
     if (args[i] === '--date' || args[i] === '-d') {
       targetDate = args[++i];
     } else if (args[i] === '--today' || args[i] === '-t') {
-      targetDate = new Date().toISOString().slice(0, 10);
+      const now = new Date();
+      targetDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     } else if (args[i] === '--all' || args[i] === '-a') {
       showAll = true;
     } else if (args[i] === '--last' || args[i] === '-n') {
