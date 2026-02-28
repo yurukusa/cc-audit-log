@@ -158,6 +158,7 @@ The tool flags potentially risky commands:
 | [cc-cost-check](https://github.com/yurukusa/cc-cost-check) | Cost per commit calculator |
 | [cc-wrapped](https://yurukusa.github.io/cc-wrapped/) | Your AI year in review (Spotify Wrapped style) |
 | [cc-roast](https://yurukusa.github.io/cc-roast/) | Your CLAUDE.md, brutally honest |
+| [claude-code-hooks](https://github.com/yurukusa/claude-code-hooks) | Fix your score — 10 hooks + 5 templates |
 
 ## License
 
