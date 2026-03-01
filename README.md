@@ -150,7 +150,7 @@ The tool flags potentially risky commands:
 
 ## Part of cc-toolkit
 
-cc-audit-log is one of 32 free tools for Claude Code users.
+cc-audit-log is one of 33 free tools for Claude Code users.
 
 **→ [See all 27 tools at yurukusa.github.io/cc-toolkit](https://yurukusa.github.io/cc-toolkit/)**
 
