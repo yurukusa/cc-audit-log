@@ -162,7 +162,7 @@ cc-audit-log is one of 36 free tools for Claude Code users.
 | [cc-cost-check](https://yurukusa.github.io/cc-cost-check/) | Cost per commit calculator |
 | [cc-wrapped](https://yurukusa.github.io/cc-wrapped/) | Your AI year in review (Spotify Wrapped style) |
 | [cc-roast](https://yurukusa.github.io/cc-roast/) | Your CLAUDE.md, brutally honest |
-| [cc-ops-kit](https://yurukusa.gumroad.com/l/cc-codex-ops-kit) | Production hooks to keep autonomous Claude Code safe ($14.99) |
+| [cc-ops-kit](https://yurukusa.gumroad.com/l/cc-codex-ops-kit) | Production hooks to keep autonomous Claude Code safe ($19) |
 
 ## License
 
