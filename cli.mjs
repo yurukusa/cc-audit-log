@@ -563,6 +563,11 @@ async function main() {
   console.log(`  ${C.dim}My AI did ${totalTools} tool calls, created ${totalCreated} files, ran ${totalBash} commands, and made ${totalCommits} commits${totalRisks > 0 ? ` (${totalRisks} risk flags!)` : ''}.`);
   console.log(`  #ClaudeCode #AIAudit${C.reset}`);
   console.log();
+
+  console.log();
+  console.log(`  ${C.dim}Running Claude Code autonomously? Check your safety score:${C.reset}`);
+  console.log(`  ${C.dim}npx cc-health-check${C.reset}`);
+  console.log(`  ${C.dim}Full production kit: https://yurukusa.gumroad.com/l/pkbbl?utm_source=npm&utm_medium=cli&utm_campaign=ops-kit${C.reset}`);
 }
 
 main().catch(err => {
