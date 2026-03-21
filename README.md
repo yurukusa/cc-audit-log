@@ -168,7 +168,7 @@ cc-audit-log is one of 36 free tools for Claude Code users.
 
 **Quick safety setup:** `npx cc-safe-setup` — 7 hooks in 10 seconds (free). [GitHub](https://github.com/yurukusa/cc-safe-setup)
 
-**[Claude Code Ops Kit](https://yurukusa.github.io/cc-ops-kit-landing/?utm_source=github&utm_medium=readme&utm_campaign=cc-audit-log)** — 16 production hooks + 6 templates + 3 tools. Every tool call logged, every error caught, every session recoverable.
+**[Claude Code Ops Kit](https://yurukusa.github.io/cc-ops-kit-landing/?utm_source=github&utm_medium=readme&utm_campaign=cc-audit-log)** — 16 production hooks + 5 templates + 3 tools. Every tool call logged, every error caught, every session recoverable.
 
 ## License
 
